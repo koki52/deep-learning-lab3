@@ -13,6 +13,7 @@ class Dataset:
         self.batch_size = None
         self.sequence_length = None
         self.batches = []
+        self.batch_pointer = 0
 
     def preprocess(self, input_file):
         with open(input_file, 'r') as f:
@@ -70,6 +71,18 @@ class Dataset:
                 pointer += self.sequence_length
             self.batches.append(Batch(x, y))
         pass
+
+    def next_minibatch(self):
+        current_batch = self.batches[self.batch_pointer]
+        batch_x, batch_y = current_batch.x, current_batch.y
+        # handling batch pointer & reset
+        self.batch_pointer += 1
+        if self.batch_pointer == len(self.batches):
+            self.batch_pointer = 0
+        # new_epoch is a boolean indicating if the batch pointer was reset
+        # in this function call
+        new_epoch = self.batch_pointer == 0
+        return new_epoch, batch_x, batch_y
 
 
 class Batch:
