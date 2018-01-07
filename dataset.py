@@ -9,6 +9,10 @@ class Dataset:
         self.x = None
         self.char_count = None
         self.sorted_chars = None
+        self.num_batches = None
+        self.batch_size = None
+        self.sequence_length = None
+        self.batches = []
 
     def preprocess(self, input_file):
         with open(input_file, 'r') as f:
@@ -44,3 +48,31 @@ class Dataset:
             decoded += self.id2char[num]
 
         return decoded
+
+    def create_minibatches(self):
+        self.num_batches = int(
+            len(self.x) / (self.batch_size * self.sequence_length))  # calculate the number of batches
+
+        # Is all the data going to be present in the batches? Why?
+        # What happens if we select a batch size and sequence length larger than the length of the data?
+
+        #######################################
+        #       Convert data to batches       #
+        #######################################
+
+        pointer = 0
+        for _ in range(self.num_batches):
+            x = []
+            y = []
+            for __ in range(self.batch_size):
+                x.append(self.x[pointer:pointer+self.sequence_length])
+                y.append(self.x[pointer+1:pointer+self.sequence_length+1])
+                pointer += self.sequence_length
+            self.batches.append(Batch(x, y))
+        pass
+
+
+class Batch:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
